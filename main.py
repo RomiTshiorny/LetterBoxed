@@ -3,7 +3,8 @@ import csv
 from functools import reduce
 
 string = "CVOTNMPALIRE"
-sides = list(map(lambda index: string[index:index + len(string)/4], range(0, len(string), len(string)/4)))
+sides = list(map(lambda index: string[index:index + int(len(string)/4)], range(0, len(string), int(len(string)/4))))
+print(sides)
 
 box = f"  {sides[0][0]} {sides[0][1]} {sides[0][2]} " \
       f"\n{sides[1][0]}\t\t{sides[2][0]}" \
@@ -45,8 +46,7 @@ def getLegalWords(valid_sides):
     directory = ".\\Words\\EOWL CSV Format"
     word_files = os.listdir(directory)
     legal_files = []
-    legal_words = []
-    count = 0
+    legal_words = {}
     for file in word_files:
 
         # All words are pre-sorted into files based on the letter they start with
@@ -59,20 +59,20 @@ def getLegalWords(valid_sides):
             try:
                 words = csv.reader(text)
                 for word in words:
-                    count += 1
-                    if isLegal(valid_sides, word[0].upper()):
-                        legal_words.append(word[0].upper())
+                    word_upper = word[0].upper()
+                    if isLegal(valid_sides, word_upper):
+                        legal_words.update(
+                            {word_upper[0]: [word_upper] + (legal_words.get(word_upper[0], []))}
+                        )
             finally:
                 continue
 
-    print(f"Narrowed down {count} words to {len(legal_words)} legal words")
     return legal_words
 
 
 def run():
     legal_words = getLegalWords(sides)
     print(legal_words)
-    print(len(legal_words))
 
 
 run()
