@@ -3,7 +3,7 @@ import csv
 from functools import reduce
 
 string = "CVOTNMPALIRE"
-sides = list(map(lambda index: string[index:index + 3], range(0, len(string), 3)))
+sides = list(map(lambda index: string[index:index + len(string)/4], range(0, len(string), len(string)/4)))
 
 box = f"  {sides[0][0]} {sides[0][1]} {sides[0][2]} " \
       f"\n{sides[1][0]}\t\t{sides[2][0]}" \
