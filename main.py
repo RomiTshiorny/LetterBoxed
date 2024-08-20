@@ -1,5 +1,6 @@
 import os
 import csv
+from functools import reduce
 
 string = "CVOTNMPALIRE"
 sides = [
@@ -17,11 +18,31 @@ box = f"  {sides[0][0]} {sides[0][1]} {sides[0][2]} " \
 print(box)
 
 
-def isLegal(valid_chars, word):
-    # Two 'illegal cases'
-    # Case 1: Letters not part of the valid chars
-    # Case 2: Adjacent letters never belong to the same 'side' of the box
-    return False  # TODO Implement logic
+def isLegal(valid_chars, word_to_check):
+    
+    # Three 'illegal cases'
+    # Case 1: Word is 3 letters or shorter
+    if len(word_to_check) <= 3:
+        return False
+
+    # Case 2: Letters not part of the valid chars
+    for char in word_to_check:
+        if char not in valid_chars:
+            return False
+
+    # Case 3: Adjacent letters never belong to the same 'side' of the box
+    letter_groups = list(map(lambda index: valid_chars[index:index + 3], range(0, len(valid_chars), 3)))
+    chars = {}
+    for c in word_to_check:
+        for group in letter_groups:
+            if c in group:
+                chars.update({group: chars.get(group, 0) + 1})
+                if chars.get(group, 0) > 1:
+                    return False
+            else:
+                chars.update({group: 0})
+
+    return True
 
 
 def getLegalWords(valid_chars):
@@ -37,13 +58,12 @@ def getLegalWords(valid_chars):
             legal_files.append(file)
 
     for file in legal_files:
-        print(file)
         with open(f"{directory}\\{file}", mode='r') as text:
             try:
                 words = csv.reader(text)
                 for word in words:
-                    if isLegal(word):
-                        legal_words.append(word)
+                    if isLegal(valid_chars, word[0].upper()):
+                        legal_words.append(word[0].upper())
             finally:
                 continue
 
@@ -53,6 +73,7 @@ def getLegalWords(valid_chars):
 def run():
     legal_words = getLegalWords(string)
     print(legal_words)
+    print(len(legal_words))
 
 
 run()
