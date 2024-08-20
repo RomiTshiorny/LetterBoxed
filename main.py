@@ -3,12 +3,7 @@ import csv
 from functools import reduce
 
 string = "CVOTNMPALIRE"
-sides = [
-    [string[0], string[1], string[2]],
-    [string[3], string[4], string[5]],
-    [string[6], string[7], string[8]],
-    [string[9], string[10], string[11]]
-]
+sides = list(map(lambda index: string[index:index + 3], range(0, len(string), 3)))
 
 box = f"  {sides[0][0]} {sides[0][1]} {sides[0][2]} " \
       f"\n{sides[1][0]}\t\t{sides[2][0]}" \
@@ -18,7 +13,7 @@ box = f"  {sides[0][0]} {sides[0][1]} {sides[0][2]} " \
 print(box)
 
 
-def isLegal(valid_chars, word_to_check):
+def isLegal(valid_sides, word_to_check):
     
     # Three 'illegal cases'
     # Case 1: Word is 3 letters or shorter
@@ -26,15 +21,15 @@ def isLegal(valid_chars, word_to_check):
         return False
 
     # Case 2: Letters not part of the valid chars
+    valid_chars = ''.join(valid_sides)
     for char in word_to_check:
         if char not in valid_chars:
             return False
 
     # Case 3: Adjacent letters never belong to the same 'side' of the box
-    letter_groups = list(map(lambda index: valid_chars[index:index + 3], range(0, len(valid_chars), 3)))
     chars = {}
     for c in word_to_check:
-        for group in letter_groups:
+        for group in valid_sides:
             if c in group:
                 chars.update({group: chars.get(group, 0) + 1})
                 if chars.get(group, 0) > 1:
@@ -45,11 +40,13 @@ def isLegal(valid_chars, word_to_check):
     return True
 
 
-def getLegalWords(valid_chars):
+def getLegalWords(valid_sides):
+    valid_chars = ''.join(valid_sides)
     directory = ".\\Words\\EOWL CSV Format"
     word_files = os.listdir(directory)
     legal_files = []
     legal_words = []
+    count = 0
     for file in word_files:
 
         # All words are pre-sorted into files based on the letter they start with
@@ -62,16 +59,18 @@ def getLegalWords(valid_chars):
             try:
                 words = csv.reader(text)
                 for word in words:
-                    if isLegal(valid_chars, word[0].upper()):
+                    count += 1
+                    if isLegal(valid_sides, word[0].upper()):
                         legal_words.append(word[0].upper())
             finally:
                 continue
 
+    print(f"Narrowed down {count} words to {len(legal_words)} legal words")
     return legal_words
 
 
 def run():
-    legal_words = getLegalWords(string)
+    legal_words = getLegalWords(sides)
     print(legal_words)
     print(len(legal_words))
 
